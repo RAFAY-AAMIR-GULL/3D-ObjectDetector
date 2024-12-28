@@ -217,32 +217,42 @@ def filter_detections_for_tubing(args, scores, decoded_boxes_batch, confidences)
 
 
 def filter_detections_for_dumping(args, scores, decoded_boxes_batch, confidences):
+    """
+    Filters detections for dumping.
+    Parameters:
+    args (object): Contains various parameters for the function.
+    scores (torch.Tensor): Tensor containing scores of detections.
+    decoded_boxes_batch (torch.Tensor): Tensor containing bounding boxes of detections.
+    confidences (torch.Tensor): Tensor containing confidences of detections.
+    Returns:
+    tuple: A tuple containing filtered detections and their corresponding confidences.
+    """
     c_mask = scores.gt(args.GEN_CONF_THRESH)  # greater than minmum threshold
     scores = scores[c_mask].squeeze()
     if scores.dim() == 0 or scores.shape[0] == 0:
-        return np.zeros((0,5)), np.zeros((0,200))
-    
+        return np.zeros((0, 5)), np.zeros((0, 200))
+
     boxes = decoded_boxes_batch[c_mask, :].clone().view(-1, 4)
     numc = confidences.shape[-1]
-    confidences = confidences[c_mask,:].clone().view(-1, numc)
+    confidences = confidences[c_mask, :].clone().view(-1, numc)
 
-    # sorted_ind = np.argsort(-scores.cpu().numpy())
-    # sorted_ind = sorted_ind[:topk*10]
-    # boxes_np = boxes.cpu().numpy()
-    # confidences_np = confidences.cpu().numpy()
-    # save_data = np.hstack((boxes_np[sorted_ind,:], confidences_np[sorted_ind, :]))
-    # args.GEN_TOPK, args.GEN_NMS
-     
-    max_k = min(args.GEN_TOPK*500, scores.shape[0])
+    # sorted_ind = np.argsort(-scores.cpu().numpy())#-
+    # sorted_ind = sorted_ind[: 1 * 10]#-
+    # boxes_np = boxes.cpu().numpy()#-
+    # confidences_np = confidences.cpu().numpy()#-
+    # save_data = np.hstack((boxes_np[sorted_ind, :], confidences_np[sorted_ind, :]))#-
+    # args.GEN_TOPK, args.GEN_NMS#-
+    max_k = min(args.GEN_TOPK * 500, scores.shape[0])
     ids, counts = nms(boxes, scores, args.GEN_NMS, max_k)  # idsn - ids after nms
-    # keepids = torchvision.ops.nms(boxes, scores, args.GEN_NMS)
-    # pdb.set_trace()
-    scores = scores[ids[:min(args.GEN_TOPK,counts)]].cpu().numpy()
-    boxes = boxes[ids[:min(args.GEN_TOPK,counts)],:].cpu().numpy()
-    confidences = confidences[ids[:min(args.GEN_TOPK, counts)],:].cpu().numpy()
+    # keepids = torchvision.ops.nms(boxes, scores, args.GEN_NMS)#-
+    # pdb.set_trace()#-
+    scores = scores[ids[: min(args.GEN_TOPK, counts)]].cpu().detach().numpy()
+    boxes = boxes[ids[: min(args.GEN_TOPK, counts)], :].cpu().detach().numpy()
+    confidences = (
+        confidences[ids[: min(args.GEN_TOPK, counts)], :].cpu().detach().numpy()
+    )
     cls_dets = np.hstack((boxes, scores[:, np.newaxis])).astype(np.float32, copy=True)
-    save_data = np.hstack((cls_dets, confidences[:,1:])).astype(np.float32)
-    #print(save_data.shape)
+    save_data = np.hstack((cls_dets, confidences[:, 1:])).astype(np.float32)
     return cls_dets, save_data
 
 def make_joint_probs_from_marginals(frame_dets, childs, num_classes_list, start_id=4):
