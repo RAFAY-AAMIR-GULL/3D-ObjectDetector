@@ -64,8 +64,6 @@ def read_ava_annotations(anno_file):
             else:
                 annotations[video_name][ts] += [[time_stamp, None, None, numf]]
 
-    # for video_name in annotations:
-    # print(video_name)
     return annotations
 
 
@@ -77,7 +75,6 @@ def read_labelmap(labelmap_file):
     name = ""
     class_id = ""
     class_names = []
-    print("load label map from ", labelmap_file)
     count = 0
     with open(labelmap_file, "r") as f:
         for line in f:
@@ -89,12 +86,7 @@ def read_labelmap(labelmap_file):
                 labelmap[name] = {"org_id": class_id, "used_id": count}
                 class_ids_map[class_id] = {"used_id": count, "clsname": name}
                 count += 1
-                # print(class_id, name)
                 class_names.append(name)
-
-    # class_names[0]
-    print("NUmber of classes are ", count)
-
     return class_names, class_ids_map, labelmap
 
 
@@ -112,7 +104,6 @@ def get_box(box, counts):
             box[bi] = box[bi] * 682 if bi % 2 == 0 else box[bi] * 512
 
     return box, counts
-
 
 def get_frame_level_annos_ucf24(annotations, numf, num_classes, counts=None):
     frame_level_annos = [
@@ -701,7 +692,8 @@ class VideoDataset(tutils.data.Dataset):
         self.video_list = []
         self.numf_list = []
         frame_level_list = []
-
+        print("\n\n\n\ndatabase.keys()", database.keys())
+        print("\n\n\n")
         for videoname in sorted(database.keys()):
             if not is_part_of_subsets(
                 final_annots["db"][videoname]["split_ids"], self.SUBSETS
