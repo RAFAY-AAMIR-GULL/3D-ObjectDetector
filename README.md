@@ -75,15 +75,13 @@ To generate the tubes and evaluate them, first, you will need frame-level detect
 
 There are various `MODEs` in `main.py`. You can do each step independently or together. At the moment `gen-dets` mode generates and evaluated frame-wise detection and finally performs tube building and evaluation.
 
-For ROAD dataset, run the following commands.
 
+For ROAD dataset, run the following commands.
 ```
-python3 main.py /workspace/ /workspace/ /workspace/kinetics-pt/ --MODE=gen_dets --MODEL_TYPE=I3D --TEST_SEQ_LEN=8 --TRAIN_SUBSETS=train_3 --SEQ_LEN=8 --BATCH_SIZE=4 --LR=0.0041 --NUM_WORKERS=1
+python3 main.py /workspace/ /workspace/ /workspace/kinetics-pt/ --MODE=gen_dets --MODEL_TYPE=I3D --TEST_SEQ_LEN=8 --TRAIN_SUBSETS=train_3 --SEQ_LEN=8 --BATCH_SIZE=4 --LR=0.0041 --NUM_WORKERS=1 --TEST_SUBSETS=''
 ```
 
 and for UCF24
-
-
 ```
 python3 main.py /workspace/ /workspace/ /workspace/kinetics-pt/ --MODE=gen_dets --ARCH=resnet50 --MODEL_TYPE=I3D --DATASET=ucf24 --TRAIN_SUBSETS=train --VAL_SUBSETS=val --SEQ_LEN=8 --TEST_SEQ_LEN=8 --BATCH_SIZE=4 --LR=0.00245 --EVAL_EPOCHS=10 --GEN_NMS=80 --TOPK=20 --PATHS_IOUTH=0.25 --TRIM_METHOD=indiv --NUM_WORKERS=1
 ```
